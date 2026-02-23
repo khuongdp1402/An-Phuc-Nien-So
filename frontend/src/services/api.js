@@ -109,6 +109,12 @@ export function getPrayerSummaries() {
   return request('/api/prayer-records/summary');
 }
 
+export function getPrintData(year, type, recordId) {
+  const p = new URLSearchParams({ year, type });
+  if (recordId) p.set('recordId', recordId);
+  return request(`/api/prayer-records/print-data?${p}`);
+}
+
 export function createPrayerRecord(data) {
   return request('/api/prayer-records', json('POST', data));
 }

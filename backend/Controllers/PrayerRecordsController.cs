@@ -1,6 +1,7 @@
 using AnPhucNienSo.Api.Data;
 using AnPhucNienSo.Api.DTOs;
 using AnPhucNienSo.Api.Models;
+using AnPhucNienSo.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,7 @@ namespace AnPhucNienSo.Api.Controllers;
 
 [ApiController]
 [Route("api/prayer-records")]
-public class PrayerRecordsController(AppDbContext db) : ControllerBase
+public class PrayerRecordsController(AppDbContext db, LunarService lunar) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int? year, [FromQuery] string? type, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -77,6 +78,60 @@ public class PrayerRecordsController(AppDbContext db) : ControllerBase
             .ToListAsync();
 
         return Ok(summaries);
+    }
+
+    [HttpGet("print-data")]
+    public async Task<IActionResult> GetPrintData([FromQuery] int year, [FromQuery] string type, [FromQuery] Guid? recordId)
+    {
+        int currentYear = await GetConfiguredYear();
+
+        var query = db.PrayerRecords
+            .Include(p => p.Family).ThenInclude(f => f.Members)
+            .Where(p => p.Year == year && p.Type == type);
+
+        if (recordId.HasValue)
+            query = query.Where(p => p.Id == recordId.Value);
+
+        var records = await query
+            .OrderBy(p => p.Family.HeadOfHouseholdName)
+            .ToListAsync();
+
+        var result = records.Select(r =>
+        {
+            var members = (r.Type == "CauAn"
+                ? r.Family.Members.Where(m => m.IsAlive)
+                : r.Family.Members.Where(m => !m.IsAlive))
+                .OrderByDescending(m => m.BirthYear == r.Family.Members.Min(x => x.BirthYear) ? 0 : 1)
+                .ThenBy(m => m.BirthYear)
+                .Select(m =>
+                {
+                    var sh = lunar.GetSaoHan(m.BirthYear, m.Gender, currentYear);
+                    return new
+                    {
+                        m.Name,
+                        m.DharmaName,
+                        m.BirthYear,
+                        m.Gender,
+                        sh.TuoiMu,
+                        sh.Sao,
+                        sh.Han,
+                    };
+                })
+                .ToList();
+
+            return new
+            {
+                r.Id,
+                r.FamilyId,
+                FamilyName = r.Family.HeadOfHouseholdName,
+                FamilyAddress = r.Family.Address,
+                r.DonationAmount,
+                r.Notes,
+                Members = members,
+            };
+        });
+
+        return Ok(new { year, type, currentYear, items = result });
     }
 
     [HttpPost]
@@ -149,5 +204,11 @@ public class PrayerRecordsController(AppDbContext db) : ControllerBase
         db.PrayerRecords.Remove(record);
         await db.SaveChangesAsync();
         return NoContent();
+    }
+
+    private async Task<int> GetConfiguredYear()
+    {
+        var cfg = await db.SystemConfigs.FindAsync(SystemConfig.KeyLunarYear);
+        return cfg is not null && int.TryParse(cfg.Value, out var y) ? y : DateTime.Now.Year;
     }
 }

@@ -138,6 +138,18 @@ export default function PrayerRecordPage({ type, label, accent }) {
             </select>
           </div>
 
+          {totalCount > 0 && (
+            <Link
+              to={`/in?type=${type}&year=${effectiveYear}`}
+              target="_blank"
+              className="shrink-0 inline-flex items-center gap-1 px-3 sm:px-4 py-2 text-amber-700 border border-amber-300 text-sm font-semibold rounded-xl hover:bg-amber-50 transition-colors"
+              title="In tất cả"
+            >
+              <PrinterIcon />
+              <span className="hidden sm:inline">In tất cả</span>
+            </Link>
+          )}
+
           <button
             onClick={() => setShowAdd(true)}
             className={`shrink-0 inline-flex items-center gap-1 px-3 sm:px-4 py-2 text-white text-sm font-semibold rounded-xl transition-colors ${
@@ -230,6 +242,7 @@ export default function PrayerRecordPage({ type, label, accent }) {
                           </div>
                         ) : (
                           <div className="flex items-center gap-1">
+                            <Link to={`/in?type=${type}&year=${effectiveYear}&recordId=${r.id}`} target="_blank" className="p-1 text-amber-500 hover:text-amber-700" title="In"><PrinterIcon /></Link>
                             <button onClick={() => { setEditingId(r.id); setEditDonation(r.donationAmount); setEditNotes(r.notes || ''); }} className="p-1 text-amber-500 hover:text-amber-700" title="Sửa"><PencilIcon /></button>
                             <button onClick={() => handleDelete(r.id)} className="p-1 text-red-400 hover:text-red-600" title="Xóa"><TrashIcon /></button>
                           </div>
@@ -261,6 +274,7 @@ export default function PrayerRecordPage({ type, label, accent }) {
                     <p className="text-xs text-amber-500 mt-0.5">{r.familyAddress || 'Chưa có địa chỉ'}</p>
                   </div>
                   <div className="flex gap-1">
+                    <Link to={`/in?type=${type}&year=${effectiveYear}&recordId=${r.id}`} target="_blank" className="p-1 text-amber-500"><PrinterIcon /></Link>
                     <button onClick={() => { setEditingId(r.id); setEditDonation(r.donationAmount); setEditNotes(r.notes || ''); }} className="p-1 text-amber-500"><PencilIcon /></button>
                     <button onClick={() => handleDelete(r.id)} className="p-1 text-red-400"><TrashIcon /></button>
                   </div>
@@ -359,6 +373,10 @@ function StatCard({ label, value }) {
       <p className="text-xl font-bold text-amber-900 mt-1">{value}</p>
     </div>
   );
+}
+
+function PrinterIcon() {
+  return (<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>);
 }
 
 function PencilIcon() {
