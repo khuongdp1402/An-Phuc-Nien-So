@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:5062';
+const API_BASE = import.meta.env.VITE_API_URL ?? 'https://anphucnien.okdimall.com';
 
 async function request(url, options = {}) {
   const res = await fetch(`${API_BASE}${url}`, {
