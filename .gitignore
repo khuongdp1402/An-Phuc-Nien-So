@@ -1,0 +1,40 @@
+# ========== .NET / ASP.NET Core ==========
+backend/bin/
+backend/obj/
+backend/*.user
+backend/*.suo
+backend/.vs/
+
+# ========== Node / React ==========
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# ========== IDE ==========
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========== OS ==========
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ========== Docker ==========
+pgdata/
+pgadmin_data/
+
+# ========== Secrets / Environment ==========
+*.env
+*.env.*
+!.env.example
+
+# ========== Tesseract OCR trained data ==========
+backend/tessdata/
+
+# ========== IIS Logs ==========
+backend/logs/

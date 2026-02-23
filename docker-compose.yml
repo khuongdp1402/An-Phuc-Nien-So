@@ -1,0 +1,37 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: anphucnienso-postgres
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=anphucnienso
+      - POSTGRES_USER=anphucnienso_admin
+      - POSTGRES_PASSWORD=AnPhuc2026
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anphucnienso_admin -d anphucnienso"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: anphucnienso-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@anphucnienso.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  pgadmin_data:
