@@ -124,8 +124,9 @@ export function updatePrayerRecord(id, data) {
 }
 
 export function deletePrayerRecord(id) {
+  
   return request(`/api/prayer-records/${id}`, { method: 'DELETE' });
-}
+} 
 
 // ── Import ───────────────────────────────────────────────────────────
 
