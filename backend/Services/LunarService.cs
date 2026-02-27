@@ -83,7 +83,7 @@ public class LunarService
     /// </summary>
     private static string GetHan(int tuoiMu, bool isMale)
     {
-        if (tuoiMu < 10) return "Bình An";
+        if (tuoiMu < 10) return "—";
 
         var arr = isMale ? HanNam : HanNu;
 

@@ -11,8 +11,6 @@ const TYPE_LABELS = {
   CauSieu: 'SỔ CẦU SIÊU ĐẦU NĂM',
 };
 
-const MAX_ROWS = 19;
-
 export default function PrintPage() {
   const [params] = useSearchParams();
   const year = Number(params.get('year'));
@@ -103,8 +101,6 @@ export default function PrintPage() {
 }
 
 function FormTemplate({ family, year, label }) {
-  const emptyRows = Math.max(0, MAX_ROWS - family.members.length);
-
   return (
     <div className="form-sheet">
       {/* Header */}
@@ -125,7 +121,7 @@ function FormTemplate({ family, year, label }) {
       {/* Family info */}
       <div className="form-info">
         <div className="form-info-row">
-          <span className="form-label">Trai chủ:</span>
+          <span className="form-label">Trái chủ:</span>
           <span className="form-value form-dotted">{family.familyName}</span>
           <span className="form-label" style={{ marginLeft: 'auto' }}>Số TT:</span>
           <span className="form-value form-dotted" style={{ width: '60px' }}>
@@ -167,16 +163,6 @@ function FormTemplate({ family, year, label }) {
               <td className="col-han">{m.han}</td>
             </tr>
           ))}
-          {Array.from({ length: emptyRows }).map((_, i) => (
-            <tr key={`empty-${i}`}>
-              <td className="col-stt">{family.members.length + i + 1}</td>
-              <td className="col-name" />
-              <td className="col-dharma" />
-              <td className="col-age" />
-              <td className="col-sao" />
-              <td className="col-han" />
-            </tr>
-          ))}
         </tbody>
       </table>
 
@@ -203,6 +189,8 @@ const printStyles = `
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     border-radius: 4px;
     overflow: hidden;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
   }
 
   /* ── Form sheet ─────────────────────────────────────── */
@@ -213,6 +201,8 @@ const printStyles = `
     font-size: 13px;
     color: #000;
     box-sizing: border-box;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
   }
 
   .form-header {
@@ -315,9 +305,13 @@ const printStyles = `
   .col-han { width: 85px; }
 
   .form-table thead th.col-name { text-align: center; }
+  .form-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
 
   .form-footer {
-    margin-top: 8px;
+    margin-top: 10px;
     text-align: left;
     font-size: 14px;
     font-weight: 600;
@@ -351,6 +345,8 @@ const printStyles = `
       box-shadow: none;
       border-radius: 0;
       margin: 0;
+      break-inside: avoid-page;
+      page-break-inside: avoid;
     }
     .print-page:last-child {
       page-break-after: auto;

@@ -27,7 +27,7 @@ export function calcSaoHan(birthYear, isMale, currentYear) {
 
   let han;
   if (tuoiMu < 10) {
-    han = 'Bình An';
+    han = '—';
   } else {
     const hanArr = isMale ? HAN_NAM : HAN_NU;
     if (tuoiMu <= 17) {

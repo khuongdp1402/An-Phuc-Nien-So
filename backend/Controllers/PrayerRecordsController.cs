@@ -96,11 +96,9 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
 
         var result = records.Select((r, idx) =>
         {
-            var members = (r.Type == "CauAn"
+            var memberRows = (r.Type == "CauAn"
                 ? r.Family.Members.Where(m => m.IsAlive)
                 : r.Family.Members.Where(m => !m.IsAlive))
-                .OrderByDescending(m => m.BirthYear == r.Family.Members.Min(x => x.BirthYear) ? 0 : 1)
-                .ThenBy(m => m.BirthYear)
                 .Select(m =>
                 {
                     var sh = lunar.GetSaoHan(m.BirthYear, m.Gender, currentYear);
@@ -113,8 +111,15 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
                         sh.TuoiMu,
                         sh.Sao,
                         sh.Han,
+                        IsHead = IsHeadOfHousehold(m.Name, r.Family.HeadOfHouseholdName),
                     };
                 })
+                .ToList();
+
+            var members = memberRows
+                .OrderBy(m => m.IsHead ? 0 : 1)
+                .ThenByDescending(m => m.TuoiMu)
+                .ThenBy(m => m.Name)
                 .ToList();
 
             return new
@@ -126,7 +131,16 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
                 FamilyAddress = r.Family.Address,
                 r.DonationAmount,
                 r.Notes,
-                Members = members,
+                Members = members.Select(m => new
+                {
+                    m.Name,
+                    m.DharmaName,
+                    m.BirthYear,
+                    m.Gender,
+                    m.TuoiMu,
+                    m.Sao,
+                    Han = m.TuoiMu < 10 ? "—" : m.Han,
+                }),
             };
         });
 
@@ -210,5 +224,18 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
     {
         var cfg = await db.SystemConfigs.FindAsync(SystemConfig.KeyLunarYear);
         return cfg is not null && int.TryParse(cfg.Value, out var y) ? y : DateTime.Now.Year;
+    }
+
+    private static bool IsHeadOfHousehold(string memberName, string? headName)
+    {
+        if (string.IsNullOrWhiteSpace(memberName) || string.IsNullOrWhiteSpace(headName))
+            return false;
+
+        static string NormalizeName(string value)
+        {
+            return string.Join(' ', value.Trim().ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        return NormalizeName(memberName) == NormalizeName(headName);
     }
 }
