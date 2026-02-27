@@ -89,14 +89,12 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
             .Include(p => p.Family).ThenInclude(f => f.Members)
             .Where(p => p.Year == year && p.Type == type);
 
-        if (recordId.HasValue)
-            query = query.Where(p => p.Id == recordId.Value);
-
         var records = await query
-            .OrderBy(p => p.Family.HeadOfHouseholdName)
+            .OrderBy(p => p.CreatedAt)
+            .ThenBy(p => p.Id)
             .ToListAsync();
 
-        var result = records.Select(r =>
+        var result = records.Select((r, idx) =>
         {
             var members = (r.Type == "CauAn"
                 ? r.Family.Members.Where(m => m.IsAlive)
@@ -122,6 +120,7 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
             return new
             {
                 r.Id,
+                SequenceNumber = idx + 1,
                 r.FamilyId,
                 FamilyName = r.Family.HeadOfHouseholdName,
                 FamilyAddress = r.Family.Address,
@@ -131,7 +130,8 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
             };
         });
 
-        return Ok(new { year, type, currentYear, items = result });
+        var filtered = recordId.HasValue ? result.Where(x => x.Id == recordId.Value) : result;
+        return Ok(new { year, type, currentYear, items = filtered });
     }
 
     [HttpPost]

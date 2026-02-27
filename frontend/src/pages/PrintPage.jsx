@@ -3,7 +3,8 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { getPrintData } from '../services/api';
 import { formatDonation } from '../components/DonationPicker';
 import Spinner from '../components/Spinner';
-import logo from '../assets/logo.png';
+import logoGiaoHoi from '../assets/logo-giao-hoi-phat-giao.webp';
+import toaSen from '../assets/toa-sen.webp';
 
 const TYPE_LABELS = {
   CauAn: 'SỔ CẦU AN ĐẦU NĂM',
@@ -109,24 +110,26 @@ function FormTemplate({ family, year, label }) {
       {/* Header */}
       <div className="form-header">
         <div className="form-logo-col">
-          <img src={logo} alt="" className="form-logo" />
+          <img src={logoGiaoHoi} alt="" className="form-logo form-logo-left" />
         </div>
         <div className="form-title-col">
           <p className="form-org">BAN TRỊ SỰ PHẬT GIÁO</p>
           <p className="form-temple">CHÙA TÂY TRÚC</p>
           <p className="form-subtitle">{label}</p>
         </div>
-        <div className="form-logo-col" />
+        <div className="form-logo-col">
+          <img src={toaSen} alt="" className="form-logo form-logo-right" />
+        </div>
       </div>
 
       {/* Family info */}
       <div className="form-info">
         <div className="form-info-row">
-          <span className="form-label">Trại chủ:</span>
+          <span className="form-label">Trai chủ:</span>
           <span className="form-value form-dotted">{family.familyName}</span>
-          <span className="form-label" style={{ marginLeft: 'auto' }}>Tổ thọ:</span>
+          <span className="form-label" style={{ marginLeft: 'auto' }}>Số TT:</span>
           <span className="form-value form-dotted" style={{ width: '60px' }}>
-            {family.members.length > 0 ? family.members.length : ''}
+            {family.sequenceNumber ?? ''}
           </span>
         </div>
         <div className="form-info-row">
@@ -228,6 +231,14 @@ const printStyles = `
     height: 50px;
     object-fit: contain;
     border-radius: 50%;
+  }
+  .form-logo-left {
+    width: 75px;
+    height: 75px;
+  }
+  .form-logo-right {
+    width: 50px;
+    height: 50px;
   }
   .form-title-col {
     flex: 1;
