@@ -82,34 +82,6 @@ using (var scope = app.Services.CreateScope())
             logger.LogInformation("Applying database migrations (Attempt {Attempt})...", 6 - retries);
             db.Database.Migrate();
             logger.LogInformation("Database migrations applied successfully.");
-
-            // Data Seeding
-            if (!await db.Temples.AnyAsync())
-            {
-                logger.LogInformation("Seeding default data...");
-                var defaultTemple = new AnPhucNienSo.Api.Models.Temple
-                {
-                    Name = "Chùa Mẫu",
-                    Address = "Trụ sở chính",
-                    PhoneNumber = "0123456789"
-                };
-                db.Temples.Add(defaultTemple);
-                await db.SaveChangesAsync();
-
-                if (!await db.Accounts.AnyAsync())
-                {
-                    db.Accounts.Add(new AnPhucNienSo.Api.Models.Account
-                    {
-                        Username = "admin",
-                        PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-                        FullName = "Super Admin",
-                        Role = AnPhucNienSo.Api.Models.Role.SuperAdmin,
-                        TempleId = defaultTemple.Id
-                    });
-                    await db.SaveChangesAsync();
-                }
-                logger.LogInformation("Default data seeded.");
-            }
             break; // Success, exit loop
         }
         catch (Exception ex)
@@ -119,6 +91,28 @@ using (var scope = app.Services.CreateScope())
             if (retries == 0) throw;
             await Task.Delay(2000); // Wait 2s before retry
         }
+    }
+
+    // Fix default admin password if DB was created with old migration (invalid BCrypt placeholder)
+    const string oldPlaceholderHash = "$2a$11$9e/xP7hW.1y6GfBf4u5eQ.nBv8Z4Y6r9l8k7m6n5o4p3q2r1s0t1u";
+    const string correctAdmin123Hash = "$2a$11$Phi5q1HboCHBpqmh9l75WuR58WUXPtWqNkkf06hhncEwHLKi9EP7e";
+    try
+    {
+        var adminAccount = await db.Accounts.AsNoTracking().FirstOrDefaultAsync(a => a.Username == "admin");
+        if (adminAccount?.PasswordHash == oldPlaceholderHash)
+        {
+            var toUpdate = await db.Accounts.FirstOrDefaultAsync(a => a.Username == "admin");
+            if (toUpdate != null)
+            {
+                toUpdate.PasswordHash = correctAdmin123Hash;
+                await db.SaveChangesAsync();
+                logger.LogInformation("Default admin password has been fixed (admin / admin123).");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogWarning(ex, "Could not check/fix default admin password.");
     }
 }
 

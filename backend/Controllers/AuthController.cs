@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using AnPhucNienSo.Api.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,25 +12,32 @@ public class AuthController(AuthService authService) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var result = await authService.LoginAsync(request.Username, request.Password);
-        if (result == null)
+        try
         {
-            return Unauthorized(new { message = "Invalid username or password" });
-        }
-
-        return Ok(new
-        {
-            token = result.Value.Token,
-            account = new
+            var result = await authService.LoginAsync(request.Username, request.Password);
+            if (result == null)
             {
-                result.Value.Account.Id,
-                result.Value.Account.Username,
-                result.Value.Account.FullName,
-                Role = result.Value.Account.Role.ToString(),
-                result.Value.Account.TempleId,
-                TempleName = result.Value.Account.Temple?.Name
+                return Unauthorized(new { message = "Tên đăng nhập hoặc mật khẩu không đúng." });
             }
-        });
+
+            return Ok(new
+            {
+                token = result.Value.Token,
+                account = new
+                {
+                    result.Value.Account.Id,
+                    result.Value.Account.Username,
+                    result.Value.Account.FullName,
+                    Role = result.Value.Account.Role.ToString(),
+                    result.Value.Account.TempleId,
+                    TempleName = result.Value.Account.Temple?.Name
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi xử lý đăng nhập. Vui lòng thử lại.", detail = ex.Message });
+        }
     }
 
     [Microsoft.AspNetCore.Authorization.Authorize]
@@ -51,25 +59,32 @@ public class AuthController(AuthService authService) : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        var result = await authService.RegisterAsync(request.Username, request.Password, request.FullName, request.TempleName);
-        if (result == null)
+        try
         {
-            return BadRequest(new { message = "Tên đăng nhập đã tồn tại trong hệ thống." });
-        }
-
-        return Ok(new
-        {
-            token = result.Value.Token,
-            account = new
+            var result = await authService.RegisterAsync(request.Username, request.Password, request.FullName, request.TempleName);
+            if (result == null)
             {
-                result.Value.Account.Id,
-                result.Value.Account.Username,
-                result.Value.Account.FullName,
-                Role = result.Value.Account.Role.ToString(),
-                result.Value.Account.TempleId,
-                TempleName = result.Value.Account.Temple?.Name
+                return BadRequest(new { message = "Tên đăng nhập đã tồn tại trong hệ thống." });
             }
-        });
+
+            return Ok(new
+            {
+                token = result.Value.Token,
+                account = new
+                {
+                    result.Value.Account.Id,
+                    result.Value.Account.Username,
+                    result.Value.Account.FullName,
+                    Role = result.Value.Account.Role.ToString(),
+                    result.Value.Account.TempleId,
+                    TempleName = result.Value.Account.Temple?.Name
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Lỗi xử lý đăng ký. Vui lòng thử lại.", detail = ex.Message });
+        }
     }
 }
 

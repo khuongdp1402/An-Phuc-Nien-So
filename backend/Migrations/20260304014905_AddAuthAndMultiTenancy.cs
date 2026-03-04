@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -46,17 +46,12 @@ namespace AnPhucNienSo.Api.Migrations
                     table.PrimaryKey("PK_Temples", x => x.Id);
                 });
 
-            // FIX: Insert a default temple so we can satisfy foreign key constraints for existing data
-            var defaultTempleId = Guid.NewGuid();
+            // FIX: Use a fixed ID for the default temple
+            var defaultTempleId = new Guid("d3d3d3d3-d3d3-d3d3-d3d3-d3d3d3d3d3d3");
             migrationBuilder.InsertData(
                 table: "Temples",
                 columns: new[] { "Id", "Name", "Address", "PhoneNumber" },
                 values: new object[] { defaultTempleId, "Chùa Mẫu", "Trụ sở chính", "0123456789" });
-
-            // FIX: Update existing records to point to the new default temple
-            migrationBuilder.Sql($"UPDATE \"Families\" SET \"TempleId\" = '{defaultTempleId}'");
-            migrationBuilder.Sql($"UPDATE \"Members\" SET \"TempleId\" = '{defaultTempleId}'");
-            migrationBuilder.Sql($"UPDATE \"PrayerRecords\" SET \"TempleId\" = '{defaultTempleId}'");
 
             migrationBuilder.CreateTable(
                 name: "Accounts",
@@ -79,6 +74,24 @@ namespace AnPhucNienSo.Api.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                 });
+
+            // Insert default Super Admin: username=admin, password=admin123 (BCrypt hash)
+            migrationBuilder.InsertData(
+                table: "Accounts",
+                columns: new[] { "Id", "Username", "PasswordHash", "FullName", "Role", "TempleId" },
+                values: new object[] { 
+                    Guid.NewGuid(), 
+                    "admin", 
+                    "$2a$11$Phi5q1HboCHBpqmh9l75WuR58WUXPtWqNkkf06hhncEwHLKi9EP7e", 
+                    "Super Admin", 
+                    0, 
+                    defaultTempleId 
+                });
+
+            // FIX: Attach existing records to the default temple
+            migrationBuilder.Sql($"UPDATE \"Families\" SET \"TempleId\" = '{defaultTempleId}'");
+            migrationBuilder.Sql($"UPDATE \"Members\" SET \"TempleId\" = '{defaultTempleId}'");
+            migrationBuilder.Sql($"UPDATE \"PrayerRecords\" SET \"TempleId\" = '{defaultTempleId}'");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PrayerRecords_TempleId",

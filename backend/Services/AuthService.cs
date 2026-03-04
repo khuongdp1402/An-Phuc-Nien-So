@@ -18,8 +18,14 @@ public class AuthService(AppDbContext context, IConfiguration configuration)
             .Include(a => a.Temple)
             .FirstOrDefaultAsync(a => a.Username == username);
 
-        if (account == null || !BCrypt.Net.BCrypt.Verify(password, account.PasswordHash))
+        if (account == null) return null;
+        try
         {
+            if (!BCrypt.Net.BCrypt.Verify(password, account.PasswordHash)) return null;
+        }
+        catch
+        {
+            // Invalid or legacy password hash format (e.g. old migration placeholder)
             return null;
         }
 
