@@ -1,0 +1,118 @@
+Using launch settings from backend\Properties\launchSettings.json...
+Building...
+dotnet : Unhandled exception. 
+Npgsql.NpgsqlException 
+(0x80004005): Exception while 
+reading from stream
+At line:1 char:1
++ dotnet run --project backend
+/AnPhucNienSo.Api.csproj 
+--launch-profile ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (Unhandled  
+   excep...ing from stream:   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+ ---> 
+System.TimeoutException: 
+Timeout during reading attempt
+   at Npgsql.Internal.NpgsqlRe
+adBuffer.<Ensure>g__EnsureLong
+|55_0(NpgsqlReadBuffer 
+buffer, Int32 count, Boolean 
+async, Boolean 
+readingNotifications)
+   at System.Runtime.CompilerS
+ervices.PoolingAsyncValueTaskM
+ethodBuilder`1.StateMachineBox
+`1.System.Threading.Tasks.Sour
+ces.IValueTaskSource.GetResult
+(Int16 token)
+   at Npgsql.Internal.NpgsqlCo
+nnector.RawOpen(SslMode 
+sslMode, NpgsqlTimeout 
+timeout, Boolean async, 
+CancellationToken 
+cancellationToken, Boolean 
+isFirstAttempt)
+   at Npgsql.Internal.NpgsqlCo
+nnector.<Open>g__OpenCore|213_
+1(NpgsqlConnector conn, 
+SslMode sslMode, 
+NpgsqlTimeout timeout, 
+Boolean async, 
+CancellationToken 
+cancellationToken, Boolean 
+isFirstAttempt)
+   at Npgsql.Internal.NpgsqlCo
+nnector.Open(NpgsqlTimeout 
+timeout, Boolean async, 
+CancellationToken 
+cancellationToken)
+   at Npgsql.UnpooledDataSourc
+e.Get(NpgsqlConnection conn, 
+NpgsqlTimeout timeout, 
+Boolean async, 
+CancellationToken 
+cancellationToken)
+   at Npgsql.NpgsqlConnection.
+<Open>g__OpenAsync|42_0(Boolea
+n async, CancellationToken 
+cancellationToken)
+   at 
+Npgsql.NpgsqlConnection.Open()
+   at Microsoft.EntityFramewor
+kCore.Storage.RelationalConnec
+tion.OpenDbConnection(Boolean 
+errorsExpected)
+   at Microsoft.EntityFramewor
+kCore.Storage.RelationalConnec
+tion.OpenInternal(Boolean 
+errorsExpected)
+   at Microsoft.EntityFramewor
+kCore.Storage.RelationalConnec
+tion.Open(Boolean 
+errorsExpected)
+   at Npgsql.EntityFrameworkCo
+re.PostgreSQL.Storage.Internal
+.NpgsqlDatabaseCreator.Exists(
+Boolean async, 
+CancellationToken 
+cancellationToken)
+   at Npgsql.EntityFrameworkCo
+re.PostgreSQL.Storage.Internal
+.NpgsqlDatabaseCreator.Exists(
+Boolean async, 
+CancellationToken 
+cancellationToken)
+   at Npgsql.EntityFrameworkCo
+re.PostgreSQL.Storage.Internal
+.NpgsqlDatabaseCreator.Exists(
+)
+   at Microsoft.EntityFramewor
+kCore.Migrations.HistoryReposi
+tory.Exists()
+   at Microsoft.EntityFramewor
+kCore.Migrations.HistoryReposi
+tory.GetAppliedMigrations()
+   at Npgsql.EntityFrameworkCo
+re.PostgreSQL.Migrations.Inter
+nal.NpgsqlMigrator.Migrate(Str
+ing targetMigration)
+   at Microsoft.EntityFramewor
+kCore.RelationalDatabaseFacade
+Extensions.Migrate(DatabaseFac
+ade databaseFacade)
+   at 
+Program.<Main>$(String[] 
+args) in E:\Project\An Phuc 
+Nien So\An-Phuc-Nien-So\backen
+d\Program.cs:line 71
+   at Program.<Main>(String[] 
+args)

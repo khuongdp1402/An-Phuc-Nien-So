@@ -5,11 +5,14 @@ using AnPhucNienSo.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace AnPhucNienSo.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class DashboardController(AppDbContext db, LunarService lunar) : ControllerBase
+public class DashboardController(AppDbContext db, LunarService lunar, ITenantProvider tenantProvider) : ControllerBase
 {
     [HttpGet("summary")]
     public async Task<IActionResult> GetSummary([FromQuery] int? year)

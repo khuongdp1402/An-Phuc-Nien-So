@@ -7,6 +7,9 @@ public class Family
     public string? Address { get; set; }
     public string? PhoneNumber { get; set; }
 
+    public Guid TempleId { get; set; }
+    public Temple? Temple { get; set; }
+
     public ICollection<Member> Members { get; set; } = [];
     public ICollection<PrayerRecord> PrayerRecords { get; set; } = [];
 }

@@ -59,6 +59,26 @@ export default function PrintPage() {
 
   const label = TYPE_LABELS[type] || 'SỔ CẦU AN ĐẦU NĂM';
 
+  // Prepare pages: Split families with > 15 members into multiple pages
+  const pages = [];
+  if (data?.items) {
+    data.items.forEach((family) => {
+      const members = family.members || [];
+      const pageSize = 15;
+      const totalPages = Math.max(1, Math.ceil(members.length / pageSize));
+
+      for (let i = 0; i < totalPages; i++) {
+        pages.push({
+          ...family,
+          pageMembers: members.slice(i * pageSize, (i + 1) * pageSize),
+          isContinued: i > 0,
+          pageIdx: i + 1,
+          totalFamilyPages: totalPages
+        });
+      }
+    });
+  }
+
   return (
     <>
       {/* Screen-only toolbar */}
@@ -70,7 +90,7 @@ export default function PrintPage() {
           &larr; Quay lại
         </Link>
         <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">{data.items.length} phiếu</span>
+          <span className="text-sm text-gray-500">{pages.length} trang in</span>
           <button
             onClick={() => window.print()}
             className="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 transition-colors"
@@ -82,14 +102,12 @@ export default function PrintPage() {
 
       {/* Print pages */}
       <div className="print-container">
-        {data.items.map((family, pageIdx) => (
-          <div key={family.id} className="print-page">
+        {pages.map((pageData, idx) => (
+          <div key={`${pageData.id}-${idx}`} className="print-page">
             <FormTemplate
-              family={family}
+              pageData={pageData}
               year={year}
               label={label}
-              pageIdx={pageIdx}
-              totalPages={data.items.length}
             />
           </div>
         ))}
@@ -100,7 +118,15 @@ export default function PrintPage() {
   );
 }
 
-function FormTemplate({ family, year, label }) {
+function FormTemplate({ pageData, year, label }) {
+  const ROWS_PER_PAGE = 15;
+  const displayMembers = [...pageData.pageMembers];
+
+  // Pad with empty rows to always have 15 rows
+  while (displayMembers.length < ROWS_PER_PAGE) {
+    displayMembers.push(null);
+  }
+
   return (
     <div className="form-sheet">
       {/* Header */}
@@ -122,21 +148,27 @@ function FormTemplate({ family, year, label }) {
       <div className="form-info">
         <div className="form-info-row">
           <span className="form-label">Trái chủ:</span>
-          <span className="form-value form-dotted">{family.familyName}</span>
+          <span className="form-value form-dotted">
+            {pageData.familyName}{pageData.isContinued ? ' (tiếp)' : ''}
+          </span>
           <span className="form-label" style={{ marginLeft: 'auto' }}>Số TT:</span>
           <span className="form-value form-dotted" style={{ width: '60px' }}>
-            {family.sequenceNumber ?? ''}
+            {pageData.sequenceNumber ?? ''}
           </span>
         </div>
         <div className="form-info-row">
           <span className="form-label">Pháp danh:</span>
           <span className="form-value form-dotted">
-            {family.members[0]?.dharmaName || ''}
+            {pageData.members[0]?.dharmaName || '—'}
+          </span>
+          <span className="form-label" style={{ marginLeft: 'auto' }}>Trang:</span>
+          <span className="form-value form-dotted" style={{ width: '60px' }}>
+            {pageData.pageIdx}/{pageData.totalFamilyPages}
           </span>
         </div>
         <div className="form-info-row">
           <span className="form-label">Địa chỉ:</span>
-          <span className="form-value form-dotted">{family.familyAddress || ''}</span>
+          <span className="form-value form-dotted">{pageData.familyAddress || ''}</span>
         </div>
       </div>
 
@@ -153,23 +185,23 @@ function FormTemplate({ family, year, label }) {
           </tr>
         </thead>
         <tbody>
-          {family.members.map((m, i) => (
+          {displayMembers.map((m, i) => (
             <tr key={i}>
-              <td className="col-stt">{i + 1}</td>
-              <td className="col-name">{m.name}</td>
-              <td className="col-dharma">{m.dharmaName || ''}</td>
-              <td className="col-age">{m.tuoiMu}</td>
-              <td className="col-sao">{m.sao}</td>
-              <td className="col-han">{m.han}</td>
+              <td className="col-stt">{m ? (pageData.pageIdx - 1) * ROWS_PER_PAGE + i + 1 : ''}</td>
+              <td className="col-name">{m?.name || ''}</td>
+              <td className="col-dharma">{m?.dharmaName || ''}</td>
+              <td className="col-age">{m?.tuoiMu || ''}</td>
+              <td className="col-sao">{m?.sao || ''}</td>
+              <td className="col-han">{m?.han || ''}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      {/* Footer - donation */}
-      {family.donationAmount > 0 && (
+      {/* Footer - donation - only show on last page of a family */}
+      {pageData.pageIdx === pageData.totalFamilyPages && pageData.donationAmount > 0 && (
         <div className="form-footer">
-          <span className="form-donation">{formatDonation(family.donationAmount)}</span>
+          <span className="form-donation">Công đức: {formatDonation(pageData.donationAmount)}</span>
         </div>
       )}
     </div>

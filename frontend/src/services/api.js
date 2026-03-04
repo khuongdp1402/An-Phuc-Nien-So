@@ -1,16 +1,37 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? 'https://anphucnien.okdimall.com';
 
+function getAuthToken() {
+  return localStorage.getItem('token');
+}
+
+export function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('account');
+  window.location.href = '/login';
+}
+
 async function request(url, options = {}) {
+  const token = getAuthToken();
+  const headers = { ...options.headers };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE}${url}`, {
     ...options,
-    headers: { ...options.headers },
+    headers,
   });
+
+  if (res.status === 401) {
+    logout();
+    return;
+  }
 
   if (res.status === 204) return null;
 
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new Error(body?.error ?? `Request failed (${res.status})`);
+    throw new Error(body?.message ?? body?.error ?? `Request failed (${res.status})`);
   }
 
   return res.json();
@@ -21,6 +42,24 @@ const json = (method, body) => ({
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
 });
+
+// ── Auth ─────────────────────────────────────────────────────────────
+
+export async function login(username, password) {
+  const data = await request('/api/auth/login', json('POST', { username, password }));
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('account', JSON.stringify(data.account));
+  return data;
+}
+
+export function changePassword(oldPassword, newPassword) {
+  return request('/api/auth/change-password', json('POST', { oldPassword, newPassword }));
+}
+
+export function getCurrentAccount() {
+  const acc = localStorage.getItem('account');
+  return acc ? JSON.parse(acc) : null;
+}
 
 // ── Config ───────────────────────────────────────────────────────────
 
@@ -124,9 +163,9 @@ export function updatePrayerRecord(id, data) {
 }
 
 export function deletePrayerRecord(id) {
-  
+
   return request(`/api/prayer-records/${id}`, { method: 'DELETE' });
-} 
+}
 
 // ── Import ───────────────────────────────────────────────────────────
 
@@ -142,4 +181,48 @@ export function ocrImage(file) {
 
 export function saveImport(payload) {
   return request('/api/import/save', json('POST', payload));
+}
+
+// ── Temples ──────────────────────────────────────────────────────────
+
+export function getTemples() {
+  return request('/api/temples');
+}
+
+export function getTemple(id) {
+  return request(`/api/temples/${id}`);
+}
+
+export function createTemple(data) {
+  return request('/api/temples', json('POST', data));
+}
+
+export function updateTemple(id, data) {
+  return request(`/api/temples/${id}`, json('PUT', data));
+}
+
+export function deleteTemple(id) {
+  return request(`/api/temples/${id}`, { method: 'DELETE' });
+}
+
+// ── Accounts ─────────────────────────────────────────────────────────
+
+export function getAccounts() {
+  return request('/api/accounts');
+}
+
+export function getAccount(id) {
+  return request(`/api/accounts/${id}`);
+}
+
+export function createAccount(data) {
+  return request('/api/accounts', json('POST', data));
+}
+
+export function updateAccount(id, data) {
+  return request(`/api/accounts/${id}`, json('PUT', data));
+}
+
+export function deleteAccount(id) {
+  return request(`/api/accounts/${id}`, { method: 'DELETE' });
 }

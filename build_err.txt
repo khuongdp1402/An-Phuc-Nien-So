@@ -1,0 +1,19 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\PrayerRecordsController.cs(15,91): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Program.cs(33,25): error CS0103: The name 'ClaimTypes' does not exist in the current context [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Program.cs(34,25): error CS0103: The name 'ClaimTypes' does not exist in the current context [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\DashboardController.cs(15,87): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+
+Build FAILED.
+
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\PrayerRecordsController.cs(15,91): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\DashboardController.cs(15,87): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Program.cs(33,25): error CS0103: The name 'ClaimTypes' does not exist in the current context [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Program.cs(34,25): error CS0103: The name 'ClaimTypes' does not exist in the current context [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+    2 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:02.07
+
+Workload updates are available. Run `dotnet workload list` for more information.

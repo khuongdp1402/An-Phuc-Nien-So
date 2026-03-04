@@ -14,4 +14,7 @@ public class Member
 
     public Guid FamilyId { get; set; }
     public Family Family { get; set; } = null!;
+
+    public Guid TempleId { get; set; }
+    public Temple? Temple { get; set; }
 }

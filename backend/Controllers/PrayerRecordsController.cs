@@ -5,11 +5,14 @@ using AnPhucNienSo.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace AnPhucNienSo.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/prayer-records")]
-public class PrayerRecordsController(AppDbContext db, LunarService lunar) : ControllerBase
+public class PrayerRecordsController(AppDbContext db, LunarService lunar, ITenantProvider tenantProvider) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] int? year, [FromQuery] string? type, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
@@ -151,8 +154,8 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreatePrayerRecordRequest request)
     {
-        var familyExists = await db.Families.AnyAsync(f => f.Id == request.FamilyId);
-        if (!familyExists)
+        var family = await db.Families.FirstOrDefaultAsync(f => f.Id == request.FamilyId);
+        if (family == null)
             return NotFound(new { error = "Không tìm thấy gia đình." });
 
         var duplicate = await db.PrayerRecords.AnyAsync(p =>
@@ -167,6 +170,7 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar) : Cont
             FamilyId = request.FamilyId,
             DonationAmount = request.DonationAmount,
             Notes = request.Notes,
+            TempleId = family.TempleId
         };
 
         db.PrayerRecords.Add(record);

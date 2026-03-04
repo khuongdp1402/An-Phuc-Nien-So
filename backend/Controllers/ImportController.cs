@@ -5,14 +5,18 @@ using AnPhucNienSo.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace AnPhucNienSo.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ImportController(
     OcrService ocrService,
     TextParserService textParserService,
-    AppDbContext db) : ControllerBase
+    AppDbContext db,
+    ITenantProvider tenantProvider) : ControllerBase
 {
     /// <summary>
     /// Accepts an image file, runs Tesseract OCR, then parses the extracted text.
@@ -79,12 +83,14 @@ public class ImportController(
 
         Family family;
 
+        var templeId = tenantProvider.TempleId ?? Guid.Empty;
         if (request.FamilyId.HasValue && request.FamilyId.Value != Guid.Empty)
         {
             var existing = await db.Families.FindAsync(request.FamilyId.Value);
             if (existing is null)
                 return NotFound(new { error = "Family not found." });
             family = existing;
+            templeId = family.TempleId; // Use existing family's temple id
         }
         else
         {
@@ -92,7 +98,8 @@ public class ImportController(
             {
                 HeadOfHouseholdName = request.HeadOfHouseholdName ?? request.Members[0].Name ?? "Không rõ",
                 Address = request.Address,
-                PhoneNumber = request.PhoneNumber
+                PhoneNumber = request.PhoneNumber,
+                TempleId = templeId
             };
             db.Families.Add(family);
         }
@@ -106,6 +113,7 @@ public class ImportController(
                 Gender = dto.Gender ?? true,
                 DharmaName = dto.DharmaName,
                 IsAlive = dto.IsAlive,
+                TempleId = templeId
             });
         }
 

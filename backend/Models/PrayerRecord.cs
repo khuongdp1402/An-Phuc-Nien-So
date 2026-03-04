@@ -16,4 +16,7 @@ public class PrayerRecord
 
     public string? Notes { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    public Guid TempleId { get; set; }
+    public Temple? Temple { get; set; }
 }

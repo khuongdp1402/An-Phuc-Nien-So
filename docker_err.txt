@@ -1,0 +1,21 @@
+﻿docker : error during 
+connect: Get "http://%2F%2F.%2
+Fpipe%2FdockerDesktopLinuxEngi
+ne/v1.51/containers/json?all=1
+": open //./pipe/dockerDesktop
+LinuxEngine: The system 
+cannot find the file 
+specified.
+At line:1 char:1
++ docker ps -a 2>&1 | 
+Out-File -FilePath 
+docker_err.txt -Encoding utf8
++ ~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (error dur  
+  ing co...file specified.:   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 

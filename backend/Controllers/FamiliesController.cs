@@ -5,11 +5,14 @@ using AnPhucNienSo.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace AnPhucNienSo.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class FamiliesController(AppDbContext db, LunarService lunarService) : ControllerBase
+public class FamiliesController(AppDbContext db, LunarService lunarService, ITenantProvider tenantProvider) : ControllerBase
 {
     // ── LIST ────────────────────────────────────────────────────────────
 
@@ -110,11 +113,13 @@ public class FamiliesController(AppDbContext db, LunarService lunarService) : Co
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateFamilyRequest request)
     {
+        var templeId = tenantProvider.TempleId ?? Guid.Empty; // In a real app, SuperAdmin might need to provide this in the request
         var family = new Family
         {
             HeadOfHouseholdName = request.HeadOfHouseholdName,
             Address = request.Address,
-            PhoneNumber = request.PhoneNumber
+            PhoneNumber = request.PhoneNumber,
+            TempleId = templeId
         };
 
         foreach (var m in request.Members)
@@ -125,7 +130,8 @@ public class FamiliesController(AppDbContext db, LunarService lunarService) : Co
                 BirthYear = m.BirthYear,
                 Gender = m.Gender,
                 DharmaName = m.DharmaName,
-                IsAlive = m.IsAlive
+                IsAlive = m.IsAlive,
+                TempleId = templeId
             });
         }
 
@@ -186,7 +192,8 @@ public class FamiliesController(AppDbContext db, LunarService lunarService) : Co
             BirthYear = request.BirthYear,
             Gender = request.Gender,
             DharmaName = request.DharmaName,
-            IsAlive = request.IsAlive
+            IsAlive = request.IsAlive,
+            TempleId = family.TempleId // Use the family's temple id
         };
 
         family.Members.Add(member);

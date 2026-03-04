@@ -3,8 +3,11 @@ using AnPhucNienSo.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.AspNetCore.Authorization;
+
 namespace AnPhucNienSo.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ConfigController(AppDbContext db) : ControllerBase
