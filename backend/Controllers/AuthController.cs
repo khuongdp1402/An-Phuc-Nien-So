@@ -47,7 +47,32 @@ public class AuthController(AuthService authService) : ControllerBase
 
         return Ok(new { message = "Đổi mật khẩu thành công" });
     }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+    {
+        var result = await authService.RegisterAsync(request.Username, request.Password, request.FullName, request.TempleName);
+        if (result == null)
+        {
+            return BadRequest(new { message = "Tên đăng nhập đã tồn tại trong hệ thống." });
+        }
+
+        return Ok(new
+        {
+            token = result.Value.Token,
+            account = new
+            {
+                result.Value.Account.Id,
+                result.Value.Account.Username,
+                result.Value.Account.FullName,
+                Role = result.Value.Account.Role.ToString(),
+                result.Value.Account.TempleId,
+                TempleName = result.Value.Account.Temple?.Name
+            }
+        });
+    }
 }
 
 public record LoginRequest(string Username, string Password);
 public record ChangePasswordRequest(string OldPassword, string NewPassword);
+public record RegisterRequest(string Username, string Password, string FullName, string TempleName);

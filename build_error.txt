@@ -1,0 +1,17 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\PrayerRecordsController.cs(15,91): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\DashboardController.cs(15,87): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Services\AuthService.cs(66,20): error CS0103: The name 'UserRole' does not exist in the current context [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+
+Build FAILED.
+
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\PrayerRecordsController.cs(15,91): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Controllers\DashboardController.cs(15,87): warning CS9113: Parameter 'tenantProvider' is unread. [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\Services\AuthService.cs(66,20): error CS0103: The name 'UserRole' does not exist in the current context [E:\Project\An Phuc Nien So\An-Phuc-Nien-So\backend\AnPhucNienSo.Api.csproj]
+    2 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.61
+
+Workload updates are available. Run `dotnet workload list` for more information.

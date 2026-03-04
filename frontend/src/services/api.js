@@ -52,6 +52,13 @@ export async function login(username, password) {
   return data;
 }
 
+export async function register(username, password, fullName, templeName) {
+  const data = await request('/api/auth/register', json('POST', { username, password, fullName, templeName }));
+  localStorage.setItem('token', data.token);
+  localStorage.setItem('account', JSON.stringify(data.account));
+  return data;
+}
+
 export function changePassword(oldPassword, newPassword) {
   return request('/api/auth/change-password', json('POST', { oldPassword, newPassword }));
 }

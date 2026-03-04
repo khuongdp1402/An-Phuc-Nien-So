@@ -46,6 +46,18 @@ namespace AnPhucNienSo.Api.Migrations
                     table.PrimaryKey("PK_Temples", x => x.Id);
                 });
 
+            // FIX: Insert a default temple so we can satisfy foreign key constraints for existing data
+            var defaultTempleId = Guid.NewGuid();
+            migrationBuilder.InsertData(
+                table: "Temples",
+                columns: new[] { "Id", "Name", "Address", "PhoneNumber" },
+                values: new object[] { defaultTempleId, "Chùa Mẫu", "Trụ sở chính", "0123456789" });
+
+            // FIX: Update existing records to point to the new default temple
+            migrationBuilder.Sql($"UPDATE \"Families\" SET \"TempleId\" = '{defaultTempleId}'");
+            migrationBuilder.Sql($"UPDATE \"Members\" SET \"TempleId\" = '{defaultTempleId}'");
+            migrationBuilder.Sql($"UPDATE \"PrayerRecords\" SET \"TempleId\" = '{defaultTempleId}'");
+
             migrationBuilder.CreateTable(
                 name: "Accounts",
                 columns: table => new

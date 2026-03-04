@@ -40,6 +40,42 @@ public class AuthService(AppDbContext context, IConfiguration configuration)
         return true;
     }
 
+    public async Task<(string Token, Account Account)?> RegisterAsync(string username, string password, string fullName, string templeName)
+    {
+        if (await context.Accounts.AnyAsync(a => a.Username == username))
+        {
+            return null;
+        }
+
+        // 1. Create a new temple
+        var temple = new Temple
+        {
+            Name = templeName,
+            Address = "Chưa cập nhật",
+            PhoneNumber = "0000000000"
+        };
+        context.Temples.Add(temple);
+        await context.SaveChangesAsync(); // Get the ID
+
+        // 2. Create the admin account
+        var account = new Account
+        {
+            Username = username,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+            FullName = fullName,
+            Role = Role.Admin,
+            TempleId = temple.Id
+        };
+        context.Accounts.Add(account);
+        await context.SaveChangesAsync();
+
+        // Include temple for token generation if needed
+        account.Temple = temple;
+
+        var token = GenerateJwtToken(account);
+        return (token, account);
+    }
+
     private string GenerateJwtToken(Account account)
     {
         var jwtSettings = configuration.GetSection("JwtSettings");

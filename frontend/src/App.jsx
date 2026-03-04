@@ -15,6 +15,7 @@ import TempleFormPage from './pages/TempleFormPage';
 import AccountListPage from './pages/AccountListPage';
 import AccountFormPage from './pages/AccountFormPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import RegisterPage from './pages/RegisterPage';
 
 function AppLayout({ children }) {
   return (
@@ -32,10 +33,11 @@ export default function App() {
   const { pathname } = useLocation();
   const isSuper = account?.role === 'SuperAdmin' || account?.Role === 'SuperAdmin';
 
-  if (pathname === '/login') {
+  if (['/login', '/register'].includes(pathname)) {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     );
   }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { login } from '../services/api';
 import logo from '../assets/logo-giao-hoi-phat-giao.webp';
 import bg from '../assets/login-bg.png';
@@ -124,6 +125,14 @@ export default function LoginPage() {
                         <p className="text-white/40 text-[10px] uppercase tracking-widest font-medium">
                             Chương trình quản lý © 2026
                         </p>
+                        <div className="mt-4">
+                            <Link
+                                to="/register"
+                                className="text-amber-200/80 hover:text-white text-xs font-bold transition-all duration-300 relative after:content-[''] after:absolute after:bottom-[-2px] after:left-0 after:w-0 after:h-[1px] after:bg-amber-400 after:transition-all hover:after:w-full"
+                            >
+                                Chưa có tài khoản? Đăng ký ngay
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
