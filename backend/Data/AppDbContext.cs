@@ -8,7 +8,8 @@ namespace AnPhucNienSo.Api.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvider? tenantProvider = null) : DbContext(options)
 {
     private readonly Guid? _currentTempleId = tenantProvider?.TempleId;
-    private readonly bool _isSuperAdmin = tenantProvider?.IsSuperAdmin ?? true; // Default to true if no provider (e.g. migration)
+    private readonly bool _isSuperAdmin = tenantProvider?.IsSuperAdmin ?? true;
+    private readonly bool _viewingAsTemple = tenantProvider?.ViewingAsTemple ?? false;
 
     public DbSet<Family> Families => Set<Family>();
     public DbSet<Member> Members => Set<Member>();
@@ -56,7 +57,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
                   .HasForeignKey(f => f.TempleId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasQueryFilter(f => _isSuperAdmin || f.TempleId == _currentTempleId);
+            entity.HasQueryFilter(f => (!_viewingAsTemple && _isSuperAdmin) || f.TempleId == _currentTempleId);
         });
 
         modelBuilder.Entity<Member>(entity =>
@@ -71,7 +72,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
                   .HasForeignKey(m => m.FamilyId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasQueryFilter(m => _isSuperAdmin || m.TempleId == _currentTempleId);
+            entity.HasQueryFilter(m => (!_viewingAsTemple && _isSuperAdmin) || m.TempleId == _currentTempleId);
         });
 
         modelBuilder.Entity<PrayerRecord>(entity =>
@@ -90,7 +91,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantProvide
 
             entity.HasIndex(p => new { p.Year, p.Type, p.FamilyId }).IsUnique();
 
-            entity.HasQueryFilter(p => _isSuperAdmin || p.TempleId == _currentTempleId);
+            entity.HasQueryFilter(p => (!_viewingAsTemple && _isSuperAdmin) || p.TempleId == _currentTempleId);
         });
 
         modelBuilder.Entity<SystemConfig>(entity =>

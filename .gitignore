@@ -32,6 +32,7 @@ pgadmin_data/
 *.env
 *.env.*
 !.env.example
+!backend/.env.example
 
 # ========== Tesseract OCR trained data ==========
 backend/tessdata/

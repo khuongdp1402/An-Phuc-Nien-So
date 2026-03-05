@@ -15,6 +15,7 @@ import TempleFormPage from './pages/TempleFormPage';
 import AccountListPage from './pages/AccountListPage';
 import AccountFormPage from './pages/AccountFormPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
+import SelectTemplePage from './pages/SelectTemplePage';
 
 function AppLayout({ children }) {
   return (
@@ -55,6 +56,7 @@ export default function App() {
   return (
     <AppLayout>
       <Routes>
+        <Route path="/select-temple" element={isSuper ? <SelectTemplePage /> : <Navigate to="/" replace />} />
         <Route path="/" element={<DashboardPage />} />
         <Route path="/change-password" element={<ChangePasswordPage />} />
         <Route path="/families" element={<FamilyListPage />} />

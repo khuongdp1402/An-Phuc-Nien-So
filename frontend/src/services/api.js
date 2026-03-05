@@ -1,12 +1,42 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? 'https://anphucnien.okdimall.com';
 
+const VIEW_TEMPLE_KEY = 'viewTempleId';
+const VIEW_TEMPLE_NAME_KEY = 'viewTempleName';
+
 function getAuthToken() {
   return localStorage.getItem('token');
+}
+
+/** SuperAdmin: ID chùa đang chọn xem (lưu localStorage). Luôn trả về string hoặc null. */
+export function getViewTempleId() {
+  const id = localStorage.getItem(VIEW_TEMPLE_KEY);
+  return id != null && id.trim() !== '' ? id.trim() : null;
+}
+
+export function setViewTemple(id, name) {
+  if (id != null && id !== '') {
+    const sid = String(id).trim();
+    localStorage.setItem(VIEW_TEMPLE_KEY, sid);
+    localStorage.setItem(VIEW_TEMPLE_NAME_KEY, name != null ? String(name).trim() : '');
+  } else {
+    localStorage.removeItem(VIEW_TEMPLE_KEY);
+    localStorage.removeItem(VIEW_TEMPLE_NAME_KEY);
+  }
+}
+
+export function getViewTempleName() {
+  return localStorage.getItem(VIEW_TEMPLE_NAME_KEY) || '';
+}
+
+export function clearViewTemple() {
+  localStorage.removeItem(VIEW_TEMPLE_KEY);
+  localStorage.removeItem(VIEW_TEMPLE_NAME_KEY);
 }
 
 export function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('account');
+  clearViewTemple();
   window.location.href = '/login';
 }
 
@@ -16,10 +46,15 @@ async function request(url, options = {}) {
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
+  const viewTempleId = getViewTempleId();
+  if (viewTempleId) {
+    headers['X-View-Temple-Id'] = viewTempleId;
+  }
 
   const res = await fetch(`${API_BASE}${url}`, {
     ...options,
     headers,
+    cache: 'no-store',
   });
 
   if (res.status === 401) {

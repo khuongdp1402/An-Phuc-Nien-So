@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+// Load .env từ thư mục project (tránh lộ connection string / secret trong repo)
+DotNetEnv.Env.TraversePath().Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
@@ -16,13 +19,13 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// JWT — bắt buộc có Secret trên server (trong appsettings.json)
+// JWT — ưu tiên từ biến môi trường (.env): JwtSettings__Secret
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secret = jwtSettings["Secret"]?.Trim();
 if (string.IsNullOrEmpty(secret))
 {
     throw new InvalidOperationException(
-        "JwtSettings:Secret chưa cấu hình. Trên server IIS, sửa file appsettings.json trong thư mục publish, thêm hoặc kiểm tra mục JwtSettings với Secret (chuỗi bí mật đủ dài).");
+        "JwtSettings:Secret chưa cấu hình. Đặt trong file .env: JWTSETTINGS__SECRET=... hoặc trong appsettings.json.");
 }
 
 var issuer = jwtSettings["Issuer"]?.Trim() ?? "AnPhucNienSoApi";
@@ -51,9 +54,15 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-// PostgreSQL via EF Core
+// PostgreSQL — ưu tiên từ biến môi trường (.env): ConnectionStrings__DefaultConnection
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")?.Trim();
+if (string.IsNullOrEmpty(connectionString))
+{
+    throw new InvalidOperationException(
+        "ConnectionStrings:DefaultConnection chưa cấu hình. Đặt trong file .env: CONNECTIONSTRINGS__DEFAULTCONNECTION=...");
+}
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 // Domain services
 builder.Services.AddSingleton<LunarService>();

@@ -16,8 +16,9 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            await login(username, password);
-            window.location.href = '/';
+            const data = await login(username, password);
+            const isSuper = data?.account?.role === 'SuperAdmin' || data?.account?.Role === 'SuperAdmin';
+            window.location.href = isSuper ? '/select-temple' : '/';
         } catch (err) {
             setError(err.message);
         } finally {

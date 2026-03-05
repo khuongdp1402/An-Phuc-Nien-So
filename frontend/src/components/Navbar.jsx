@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
-import { getCurrentAccount, logout } from '../services/api';
+import { getCurrentAccount, logout, getTemples, getViewTempleId, getViewTempleName, setViewTemple } from '../services/api';
 
 const links = [
   { to: '/', label: 'Tổng quan' },
@@ -14,8 +14,16 @@ const links = [
 export default function Navbar() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
+  const [templeDropdownOpen, setTempleDropdownOpen] = useState(false);
+  const [temples, setTemples] = useState([]);
   const account = getCurrentAccount();
   const isSuper = account?.role === 'SuperAdmin' || account?.Role === 'SuperAdmin';
+  const viewTempleId = getViewTempleId();
+  const viewTempleName = getViewTempleName();
+
+  useEffect(() => {
+    if (isSuper) getTemples().then(setTemples).catch(() => setTemples([]));
+  }, [isSuper]);
 
   const navLinks = [
     { to: '/', label: 'Tổng quan' },
@@ -45,13 +53,62 @@ export default function Navbar() {
             <span className="text-sm font-bold text-amber-900 hidden sm:inline leading-tight">
               An Phúc Niên Sổ
             </span>
-            {account?.templeName && (
+            {isSuper ? (
+              <span className="text-[10px] text-amber-700 hidden sm:inline italic max-w-[140px] truncate" title={viewTempleName || 'Tất cả'}>
+                {viewTempleName || 'Xem tất cả chùa'}
+              </span>
+            ) : account?.templeName ? (
               <span className="text-[10px] text-amber-700 hidden sm:inline italic">
                 {account.templeName}
               </span>
-            )}
+            ) : null}
           </div>
         </Link>
+
+        {/* SuperAdmin: Chọn chùa (desktop) */}
+        {isSuper && (
+          <div className="hidden sm:block relative">
+            <button
+              onClick={() => setTempleDropdownOpen(!templeDropdownOpen)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-amber-700 bg-amber-100/80 hover:bg-amber-100 border border-amber-200/80"
+            >
+              <span className="max-w-[120px] truncate">{viewTempleName || 'Tất cả chùa'}</span>
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+            </button>
+            {templeDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setTempleDropdownOpen(false)} />
+                <div className="absolute left-0 mt-1 w-56 max-h-72 overflow-auto bg-white rounded-xl shadow-lg border border-amber-100 py-1 z-20">
+                  <button
+                    type="button"
+                    onClick={() => { setViewTemple(null); setTempleDropdownOpen(false); setTimeout(() => window.location.reload(), 50); }}
+                    className={`w-full text-left px-3 py-2 text-sm ${!viewTempleId ? 'bg-amber-50 font-medium text-amber-900' : 'text-gray-700 hover:bg-amber-50/50'}`}
+                  >
+                    Tất cả chùa
+                  </button>
+                  {temples.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => { setViewTemple(t.id, t.name); setTempleDropdownOpen(false); setTimeout(() => window.location.reload(), 50); }}
+                      className={`w-full text-left px-3 py-2 text-sm truncate ${String(viewTempleId || '') === String(t.id || '') ? 'bg-amber-50 font-medium text-amber-900' : 'text-gray-700 hover:bg-amber-50/50'}`}
+                      title={t.name}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                  <Link
+                    to="/select-temple"
+                    onClick={() => setTempleDropdownOpen(false)}
+                    className="block px-3 py-2 text-xs text-amber-600 hover:bg-amber-50 border-t border-amber-100 mt-1"
+                  >
+                    Trang chọn chùa →
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Desktop Menu */}
         <div className="hidden sm:flex items-center gap-1">
@@ -164,7 +221,20 @@ export default function Navbar() {
         <div className="sm:hidden border-t border-amber-100 bg-white/95 backdrop-blur-md px-4 pb-6 pt-2 space-y-1 shadow-2xl animate-in fade-in slide-in-from-top-2">
           <div className="py-2 mb-2 border-b border-amber-50">
             <p className="text-[10px] uppercase font-bold text-amber-500 tracking-wider">Hệ thống</p>
+            {isSuper && viewTempleName && (
+              <p className="text-xs text-amber-700 mt-1 truncate">Đang xem: {viewTempleName}</p>
+            )}
           </div>
+          {isSuper && (
+            <Link
+              to="/select-temple"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-indigo-600 bg-indigo-50/50 hover:bg-indigo-50"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              Chọn chùa xem dữ liệu
+            </Link>
+          )}
           {navLinks.map((l) => (
             <Link
               key={l.to}

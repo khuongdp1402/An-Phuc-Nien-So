@@ -94,7 +94,22 @@ Thư mục `publish/` sẽ chứa tất cả file cần thiết bao gồm:
 - `appsettings.json`
 - `tessdata/` (chứa file nhận dạng OCR)
 
-### 2.3 Cấu hình appsettings.json (trên server)
+### 2.3 Cấu hình bí mật (Connection string & JWT)
+
+**Cách 1 — Dùng file .env (khuyến nghị, tránh lộ khi push code):**
+
+1. Trong thư mục `backend/` (hoặc thư mục publish trên server), tạo file `.env` từ mẫu:
+   ```powershell
+   copy .env.example .env
+   ```
+2. Mở `.env` và điền:
+   ```
+   CONNECTIONSTRINGS__DEFAULTCONNECTION=Host=localhost;Port=5432;Database=anphucnienso;Username=anphucnienso_admin;Password=MatKhauManh@2026
+   JWTSETTINGS__SECRET=CHUOI_BI_MAT_DAY_DU_IT_NHAT_32_KY_TU_THAY_DOI_TREN_SERVER
+   ```
+   Thay mật khẩu và chuỗi JWT bằng giá trị thật. **Không commit file .env.**
+
+**Cách 2 — Sửa appsettings.json trên server (ít an toàn hơn):**
 
 Sửa file `publish/appsettings.json` trước khi copy lên server:
 
@@ -108,7 +123,7 @@ Sửa file `publish/appsettings.json` trước khi copy lên server:
   },
   "AllowedHosts": "*",
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=anphucnienso;Username=anphucnienso_admin;Password=MatKhauManh@2026"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=anphucnienso;Username=anphucnienso_admin;Password=MAT_KHAU_THAT_CUA_BAN"
   },
   "AllowedCorsOrigins": [
     "https://an-phuc-nien-so.vercel.app"
@@ -122,10 +137,9 @@ Sửa file `publish/appsettings.json` trước khi copy lên server:
 }
 ```
 
-**Thay đổi quan trọng:**
-- `DefaultConnection`: điền đúng password PostgreSQL đã tạo ở Phần 1
-- `AllowedCorsOrigins`: điền đúng URL Vercel sau khi deploy frontend (Phần 3)
-- **`JwtSettings:Secret`**: bắt buộc, dùng chuỗi bí mật đủ dài (≥ 32 ký tự), không để trống — nếu thiếu sẽ lỗi `Value cannot be null (Parameter 's')` khi đăng nhập
+**Lưu ý:** Nếu dùng .env thì có thể để trống `DefaultConnection` và `Secret` trong appsettings.json; ứng dụng sẽ đọc từ biến môi trường (.env).
+
+> **Bảo mật:** Nếu bạn đã từng push nhầm connection string hoặc JWT secret lên Git, hãy **đổi mật khẩu PostgreSQL** và **tạo lại JwtSettings:Secret** mới trên server, vì giá trị cũ có thể đã lộ trong lịch sử commit.
 
 ### 2.4 Copy lên Server
 
