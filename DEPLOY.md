@@ -112,13 +112,20 @@ Sửa file `publish/appsettings.json` trước khi copy lên server:
   },
   "AllowedCorsOrigins": [
     "https://an-phuc-nien-so.vercel.app"
-  ]
+  ],
+  "JwtSettings": {
+    "Secret": "CHUOI_BI_MAT_DAY_DU_IT_NHAT_32_KY_TU_THAY_DOI_TREN_SERVER",
+    "Issuer": "AnPhucNienSoApi",
+    "Audience": "AnPhucNienSoClient",
+    "ExpiryInDays": 7
+  }
 }
 ```
 
 **Thay đổi quan trọng:**
 - `DefaultConnection`: điền đúng password PostgreSQL đã tạo ở Phần 1
 - `AllowedCorsOrigins`: điền đúng URL Vercel sau khi deploy frontend (Phần 3)
+- **`JwtSettings:Secret`**: bắt buộc, dùng chuỗi bí mật đủ dài (≥ 32 ký tự), không để trống — nếu thiếu sẽ lỗi `Value cannot be null (Parameter 's')` khi đăng nhập
 
 ### 2.4 Copy lên Server
 
@@ -266,6 +273,7 @@ Mỗi lần bạn push code lên GitHub branch `main`, Vercel sẽ tự động 
 | CORS error | `AllowedCorsOrigins` sai | Sửa trong `appsettings.json`, restart IIS |
 | Mixed Content | API dùng HTTP, frontend dùng HTTPS | Cài SSL cho API hoặc dùng Cloudflare |
 | 502.5 | Hosting Bundle chưa cài | Cài ASP.NET Core 8.0 Hosting Bundle, iisreset |
+| Value cannot be null (Parameter 's') / ArgumentNullException trong JWT | Thiếu **JwtSettings:Secret** trong appsettings.json trên server | Thêm mục `JwtSettings` với `Secret` (chuỗi bí mật ≥ 32 ký tự), `Issuer`, `Audience`, `ExpiryInDays` vào appsettings.json trong thư mục deploy, rồi restart ứng dụng |
 | DB connection failed | Sai connection string | Kiểm tra password, port, pg_hba.conf |
 | OCR không hoạt động | Thiếu tessdata hoặc Tesseract | Kiểm tra thư mục tessdata trong publish |
 | Swagger không hiện | ASPNETCORE_ENVIRONMENT=Production | Bình thường — Swagger chỉ hiện ở Development |

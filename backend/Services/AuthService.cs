@@ -85,8 +85,15 @@ public class AuthService(AppDbContext context, IConfiguration configuration)
     private string GenerateJwtToken(Account account)
     {
         var jwtSettings = configuration.GetSection("JwtSettings");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]!));
+        var secret = jwtSettings["Secret"] ?? throw new InvalidOperationException("JwtSettings:Secret is not configured.");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var issuer = jwtSettings["Issuer"] ?? "AnPhucNienSoApi";
+        var audience = jwtSettings["Audience"] ?? "AnPhucNienSoClient";
+        var expiryDays = 7;
+        if (double.TryParse(jwtSettings["ExpiryInDays"]?.ToString(), out var days) && days > 0)
+            expiryDays = (int)days;
 
         var claims = new List<Claim>
         {
@@ -102,10 +109,10 @@ public class AuthService(AppDbContext context, IConfiguration configuration)
         }
 
         var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
+            issuer: issuer,
+            audience: audience,
             claims: claims,
-            expires: DateTime.Now.AddDays(double.Parse(jwtSettings["ExpiryInDays"]!)),
+            expires: DateTime.Now.AddDays(expiryDays),
             signingCredentials: creds
         );
 

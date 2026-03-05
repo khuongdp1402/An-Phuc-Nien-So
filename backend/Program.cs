@@ -8,13 +8,26 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// JWT
+// JWT — bắt buộc có Secret trên server (trong appsettings.json)
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-var secret = jwtSettings["Secret"]!;
+var secret = jwtSettings["Secret"]?.Trim();
+if (string.IsNullOrEmpty(secret))
+{
+    throw new InvalidOperationException(
+        "JwtSettings:Secret chưa cấu hình. Trên server IIS, sửa file appsettings.json trong thư mục publish, thêm hoặc kiểm tra mục JwtSettings với Secret (chuỗi bí mật đủ dài).");
+}
+
+var issuer = jwtSettings["Issuer"]?.Trim() ?? "AnPhucNienSoApi";
+var audience = jwtSettings["Audience"]?.Trim() ?? "AnPhucNienSoClient";
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -28,8 +41,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
+        ValidIssuer = issuer,
+        ValidAudience = audience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
         NameClaimType = ClaimTypes.Name,
         RoleClaimType = ClaimTypes.Role
@@ -49,19 +62,14 @@ builder.Services.AddSingleton<OcrService>();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<AuthService>();
 
-// CORS
-var allowedOrigins = builder.Configuration
-    .GetSection("AllowedCorsOrigins")
-    .Get<string[]>() ?? [];
-
+// CORS — allow all origins (tắt giới hạn, cho phép mọi nguồn)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.AllowAnyOrigin()
               .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowAnyMethod();
     });
 });
 

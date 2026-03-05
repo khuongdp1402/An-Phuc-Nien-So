@@ -142,7 +142,7 @@ public class PrayerRecordsController(AppDbContext db, LunarService lunar, ITenan
                     m.Gender,
                     m.TuoiMu,
                     m.Sao,
-                    Han = m.TuoiMu < 10 ? "—" : m.Han,
+                    Han = m.TuoiMu <= 10 ? "—" : m.Han,
                 }),
             };
         });

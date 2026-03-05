@@ -31,7 +31,9 @@ async function request(url, options = {}) {
 
   if (!res.ok) {
     const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? body?.error ?? `Request failed (${res.status})`);
+    const msg = body?.message ?? body?.error ?? `Request failed (${res.status})`;
+    const detail = body?.detail;
+    throw new Error(detail ? `${msg}: ${detail}` : msg);
   }
 
   return res.json();

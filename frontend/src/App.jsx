@@ -15,15 +15,19 @@ import TempleFormPage from './pages/TempleFormPage';
 import AccountListPage from './pages/AccountListPage';
 import AccountFormPage from './pages/AccountFormPage';
 import ChangePasswordPage from './pages/ChangePasswordPage';
-import RegisterPage from './pages/RegisterPage';
 
 function AppLayout({ children }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 flex flex-col">
       <Navbar />
-      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-4 sm:py-8 flex-1">
         {children}
       </main>
+      <footer className="border-t border-amber-200/60 bg-white/50 py-3">
+        <div className="max-w-6xl mx-auto px-4 text-center text-amber-700/70 text-xs">
+          Bản quyền thuộc về <strong>Kai</strong>. SĐT: 0372.803.085. Bản quyền sử dụng liên hệ hoặc email: <a href="mailto:khuongdp1402@gmail.com" className="text-amber-700 hover:underline">khuongdp1402@gmail.com</a>
+        </div>
+      </footer>
     </div>
   );
 }
@@ -37,7 +41,7 @@ export default function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/register" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }

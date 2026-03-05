@@ -22,16 +22,22 @@ export function calcSaoHan(birthYear, isMale, currentYear) {
   const tuoiMu = currentYear - birthYear + 1;
   if (tuoiMu <= 0) return { tuoiMu, sao: '—', han: '—' };
 
-  const saoArr = isMale ? SAO_NAM : SAO_NU;
-  const sao = saoArr[(tuoiMu - 1) % saoArr.length];
+  // Dưới 10 tuổi: không sao không hạn. 10 tuổi: chỉ sao, không hạn. >= 11 tuổi: có cả sao và hạn.
+  let sao;
+  if (tuoiMu < 10) {
+    sao = '—';
+  } else {
+    const saoArr = isMale ? SAO_NAM : SAO_NU;
+    sao = saoArr[(tuoiMu - 1) % saoArr.length];
+  }
 
   let han;
-  if (tuoiMu < 10) {
+  if (tuoiMu <= 10) {
     han = '—';
   } else {
     const hanArr = isMale ? HAN_NAM : HAN_NU;
     if (tuoiMu <= 17) {
-      han = hanArr[tuoiMu - 10];
+      han = hanArr[tuoiMu - 10 - 1]; // 11 -> 0, 12 -> 1, ...
     } else {
       const col = Math.floor((tuoiMu - 18) / 9) + 2;
       const pos = (tuoiMu - 18) % 9;
@@ -41,4 +47,13 @@ export function calcSaoHan(birthYear, isMale, currentYear) {
   }
 
   return { tuoiMu, sao, han };
+}
+
+/** Áp dụng quy tắc hiển thị: tuổi &lt; 10 không hiện sao, tuổi ≤ 10 không hiện hạn. Dùng khi hiển thị dữ liệu từ API (đã lưu sao thật cho ≤9). */
+export function displaySaoHan(sao, han, tuoiMu) {
+  const t = tuoiMu != null ? Number(tuoiMu) : null;
+  return {
+    displaySao: t != null && t < 10 ? '—' : (sao ?? '—'),
+    displayHan: t != null && t <= 10 ? '—' : (han ?? '—'),
+  };
 }

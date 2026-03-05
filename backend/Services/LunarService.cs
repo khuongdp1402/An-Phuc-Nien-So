@@ -56,39 +56,43 @@ public class LunarService
         "Thiên La"      // 7
     ];
 
-    public SaoHanResult GetSaoHan(int birthYear, bool isMale, int? currentYear = null)
+    public SaoHanResult GetSaoHan(int birthYear, bool isMale, int? currentYear = null, bool forStorage = false)
     {
         int year = currentYear ?? DateTime.Now.Year;
         int tuoiMu = year - birthYear + 1;
 
-        string sao = GetSao(tuoiMu, isMale);
+        string sao = GetSao(tuoiMu, isMale, forStorage);
         string han = GetHan(tuoiMu, isMale);
 
         return new SaoHanResult(tuoiMu, sao, han);
     }
 
-    private static string GetSao(int tuoiMu, bool isMale)
+    /// <summary>
+    /// Khi forStorage = true: vẫn tính và trả về tên sao thật cho tuổi ≤ 9 (để lưu/API trả về đúng giá trị).
+    /// Khi forStorage = false: hiển thị "—" cho tuổi &lt; 10 theo quy tắc nghiệp vụ.
+    /// </summary>
+    private static string GetSao(int tuoiMu, bool isMale, bool forStorage = false)
     {
         if (tuoiMu <= 0) return "—";
+        if (!forStorage && tuoiMu < 10) return "—"; // Hiển thị: dưới 10 tuổi không hiện sao
         var arr = isMale ? SaoNam : SaoNu;
         int index = (tuoiMu - 1) % arr.Length;
         return arr[index];
     }
 
     /// <summary>
-    /// Tuổi mụ 1–9: Bình An (no obstacle).
-    /// Tuổi mụ 10–17: direct mapping to the 8-element cycle (column 1).
-    /// Tuổi mụ ≥ 18: the 8-Hạn cycle interleaves with the 9-Sao columns,
-    /// producing one "doubled" hạn per column that shifts diagonally.
+    /// Tuổi mụ &lt; 10: không sao không hạn. Tuổi mụ 10: chỉ có sao, không hạn. Tuổi mụ ≥ 11: có cả sao và hạn.
+    /// Tuổi mụ 11–17: direct mapping to the 8-element cycle (column 1).
+    /// Tuổi mụ ≥ 18: the 8-Hạn cycle interleaves with the 9-Sao columns.
     /// </summary>
     private static string GetHan(int tuoiMu, bool isMale)
     {
-        if (tuoiMu < 10) return "—";
+        if (tuoiMu <= 10) return "—"; // 10 tuổi chỉ có sao, không có hạn; dưới 10 cũng không hạn
 
         var arr = isMale ? HanNam : HanNu;
 
         if (tuoiMu <= 17)
-            return arr[tuoiMu - 10];
+            return arr[tuoiMu - 10 - 1]; // tuoiMu 11 -> index 0, 12 -> 1, ...
 
         int col = (tuoiMu - 18) / 9 + 2;
         int pos = (tuoiMu - 18) % 9;

@@ -200,7 +200,7 @@ public class FamiliesController(AppDbContext db, LunarService lunarService, ITen
         await db.SaveChangesAsync();
 
         int calcYear = await GetConfiguredYear();
-        var sh = lunarService.GetSaoHan(member.BirthYear, member.Gender, calcYear);
+        var sh = lunarService.GetSaoHan(member.BirthYear, member.Gender, calcYear, forStorage: true);
 
         return CreatedAtAction(nameof(GetDetail), new { id },
             MapMemberDto(member, sh));
@@ -224,7 +224,7 @@ public class FamiliesController(AppDbContext db, LunarService lunarService, ITen
         await db.SaveChangesAsync();
 
         int calcYear = await GetConfiguredYear();
-        var sh = lunarService.GetSaoHan(member.BirthYear, member.Gender, calcYear);
+        var sh = lunarService.GetSaoHan(member.BirthYear, member.Gender, calcYear, forStorage: true);
 
         return Ok(MapMemberDto(member, sh));
     }
@@ -302,7 +302,7 @@ public class FamiliesController(AppDbContext db, LunarService lunarService, ITen
             Members = family.Members
                 .Select(m =>
                 {
-                    var sh = lunarService.GetSaoHan(m.BirthYear, m.Gender, calcYear);
+                    var sh = lunarService.GetSaoHan(m.BirthYear, m.Gender, calcYear, forStorage: true);
                     return MapMemberDto(m, sh);
                 })
                 .OrderBy(m => m.Name)

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getFamilyDetail, deleteFamily, addMember, updateMember, deleteMember, getLunarYear, getFamilyPrayerRecords } from '../services/api';
-import { calcSaoHan } from '../services/lunar';
+import { calcSaoHan, displaySaoHan } from '../services/lunar';
 import { SaoBadge, HanBadge } from '../components/SaoBadge';
 import { formatDonation } from '../components/DonationPicker';
 import Pagination from '../components/Pagination';
@@ -260,8 +260,8 @@ export default function FamilyDetailPage() {
                       <td className="px-4 py-3 text-center">{m.gender ? 'Nam' : 'Nữ'}</td>
                       <td className="px-4 py-3 text-center tabular-nums">{m.birthYear || '—'}</td>
                       <td className="px-4 py-3 text-center tabular-nums font-medium">{m.tuoiMu}</td>
-                      <td className="px-4 py-3"><SaoBadge value={m.sao} /></td>
-                      <td className="px-4 py-3"><HanBadge value={m.han} /></td>
+                      <td className="px-4 py-3"><SaoBadge value={displaySaoHan(m.sao, m.han, m.tuoiMu).displaySao} /></td>
+                      <td className="px-4 py-3"><HanBadge value={displaySaoHan(m.sao, m.han, m.tuoiMu).displayHan} /></td>
                       <td className="px-4 py-3 text-center"><StatusPill alive={m.isAlive} /></td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1">
@@ -323,8 +323,8 @@ export default function FamilyDetailPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <SaoBadge value={m.sao} />
-                  <HanBadge value={m.han} />
+                  <SaoBadge value={displaySaoHan(m.sao, m.han, m.tuoiMu).displaySao} />
+                  <HanBadge value={displaySaoHan(m.sao, m.han, m.tuoiMu).displayHan} />
                 </div>
               </div>
             ))}
